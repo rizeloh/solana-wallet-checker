@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solana Wallet Balance Checker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div id="content">
+        <h1>Check Solana Wallet Balances</h1>
+        <form id="balance-form" method="post" action="/balance">
+            <label for="addresses">Wallet Addresses (one per line):</label>
+            <textarea id="addresses" name="addresses" rows="15" required></textarea>
+            <div class="button-container">
+                <button type="submit">Check Balances</button>
+            </div>
+            <div id="tooltip-address" class="tooltip">Enter wallet addresses here.</div>
+            <div id="tooltip-button" class="tooltip">Click to check balances.</div>
+        </form>
+        {% if balances %}
+            <h2>Balances</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Address</th>
+                        <th>Balance (SOL)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for address, balance in balances.items() %}
+                    <tr>
+                        <td>{{ address }}</td>
+                        <td>{{ balance }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% elif error %}
+            <p style="color:red;">{{ error }}</p>
+        {% endif %}
+    </div>
+    <script>
+        document.getElementById('balance-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            fetch('/balance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(new FormData(this)),
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.open();
+                document.write(html);
+                document.close();
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('addresses').addEventListener('focus', function() {
+            document.getElementById('tooltip-address').style.display = 'block';
+        });
+        document.getElementById('addresses').addEventListener('blur', function() {
+            document.getElementById('tooltip-address').style.display = 'none';
+        });
+        document.querySelector('.button-container button').addEventListener('mouseover', function() {
+            document.getElementById('tooltip-button').style.display = 'block';
+        });
+        document.querySelector('.button-container button').addEventListener('mouseout', function() {
+            document.getElementById('tooltip-button').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
