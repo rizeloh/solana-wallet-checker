@@ -1,4 +1,4 @@
 Flask
-solana
+solana==0.20.0
 asgiref
 gunicorn
